@@ -1,0 +1,10 @@
+#Environments
+.venv
+
+# PyCharm
+.idea
+# VS Code
+.vscode/
+
+*.xlsx
+~$*.xlsx
