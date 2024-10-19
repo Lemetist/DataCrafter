@@ -2,8 +2,9 @@ import pandas as pd
 import json
 
 def split_list(input_list, chunk_size=6):
+    days_of_week = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]
     chunks = [input_list[i:i + chunk_size] for i in range(0, len(input_list), chunk_size)]
-    return {i + 1: {j + 1: chunks[i][j] for j in range(len(chunks[i]))} for i in range(min(len(chunks), 6))}
+    return {days_of_week[i]: {j + 1: chunks[i][j] for j in range(len(chunks[i]))} for i in range(min(len(chunks), 6))}
 
 def filter_excel_group(file_path, sheet_name='ОСНОВНОЕ'):
     df = pd.read_excel(file_path, sheet_name=sheet_name, engine='openpyxl', skiprows=3, nrows=36)
@@ -33,6 +34,9 @@ def filter_excel(file_path, sheet_name='ОСНОВНОЕ'):
 
 result = filter_excel('download_file.xlsx')
 print(result)
+
+
+
 
 # Сохранение результата в JSON файл
 with open('result.json', 'w', encoding='utf-8') as json_file:
