@@ -1,3 +1,4 @@
+import pandas as pd
 import requests
 
 def download_file():
@@ -11,3 +12,8 @@ def download_file():
         print(f'Файл сохранен как {file_path}')
     else:
         print(f'Ошибка загрузки файла: {response.status_code}')
+#
+def wb_name():
+    wb = pd.ExcelFile("download_file.xlsx")
+    return wb.sheet_names
+
