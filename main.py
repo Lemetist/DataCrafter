@@ -16,7 +16,7 @@ class SimpleApp(QWidget):
         self.initUI()  # Инициализация интерфейса 
 
     def initUI(self):
-        self.setWindowTitle('SusMan -- Neon_Leonov')
+        self.setWindowTitle('SusMan -- Lemetist')
         self.resize(400, 300)
 
         layout = QVBoxLayout()
