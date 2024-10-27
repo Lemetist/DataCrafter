@@ -226,9 +226,14 @@ class SimpleApp(QWidget):
                 "7": "Воскресенье"
             }
 
+            # Initialize formatted_output
+            formatted_output = ""
+
             # Display the filtered subjects with modified values
             for key, value in filtered_subjects.items():
-                formatted_output = f"{key}:\n"  # Изменено: добавлен перевод строки
+                # Add the subject key to the output
+                formatted_output += f"{key}:\n"  # Изменено: добавлен перевод строки
+                
                 for day_number, classes in value.items():
                     # Проверяем, является ли classes строкой, если да, то преобразуем
                     if isinstance(classes, str):
@@ -245,30 +250,19 @@ class SimpleApp(QWidget):
 
                     # Добавляем номера классов перед классами
                     for class_key, class_value in classes_dict.items():
+                        # Проверяем, начинается ли ключ с "ИСП"
+                        if "ИСП" in class_key:  # Изменено на class_key
+                            formatted_output += "\n"  # Добавляем пустую строку перед "ИСП"
                         formatted_output += f"  {class_key}. {class_value}\n"  # Номер класса и класс
                     formatted_output += "\n"  # Добавляем пустую строку после каждого дня для разделения
 
-                self.text_output.append(formatted_output.strip())  # Убираем лишний пробел в конце
+                formatted_output += "\n"  # Добавляем пустую строку после каждого ключа для разделения
+
+            self.text_output.append(formatted_output.strip())  # Убираем лишний пробел в конце
 
             self.status_bar.showMessage("Фильтрованные данные добавлены в текстовое поле и сохранены в filter_subjects.json.")
         else:
             self.display_message(f"Вы нажали кнопку: {text}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def display_message(self, message):
         self.text_output.append(message)
