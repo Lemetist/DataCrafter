@@ -9,7 +9,10 @@ import json
 class SimpleApp(QWidget):
     def __init__(self):
         super().__init__()
-        locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
+        try:
+            locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+        except locale.Error:
+            pass  # Если локаль не установлена, используем локаль по умолчанию
         self.light_theme = True 
         self.font_size = 14 
         self.font_color = QColor(255, 255, 255)  # Цвет текста по умолчанию белый 
