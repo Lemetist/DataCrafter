@@ -22,10 +22,6 @@ def split_list(input_list, chunk_size=6) :
     chunks = {i + 1 : {j + 1 : chunks[i][j] for j in range(len(chunks[i]))} for i in
               range(min(len(chunks), math.ceil(len(input_list) / chunk_size)))}
 
-    # Записываем в txt файл построчно
-    with open('split_sclud_list.txt', 'w', encoding='utf-8') as file :
-        file.write(f"{chunks}\n")
-
     return chunks
 
 
