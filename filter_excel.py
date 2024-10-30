@@ -2,6 +2,10 @@ import pandas as pd
 import json
 import math
 
+def wb_name():
+    wb = pd.ExcelFile("download_file.xlsx")
+    return wb.sheet_names
+
 
 def split_list(input_list, chunk_size=6) :
     """
@@ -106,11 +110,11 @@ def filter_subjects(data, subjects) :
 
 # Пример использования
 result = filter_excel('download_file.xlsx')
-print(result)
+
 
 filtered_result = filter_subjects(result, ['МДК.07.01 Управление и автоматизация баз данных\nДавыдова Л.Б.',
                                            'МДК.11.01 Технология разработки и защиты баз данных\nДавыдова Л.Б.'])
-print(filtered_result)
+
 
 # Сохранение результата в JSON файл
 with open('result.json', 'w', encoding='utf-8') as json_file :
