@@ -7,6 +7,19 @@ def wb_name():
     return wb.sheet_names
 
 
+def format_day(filtered_subjects, day_mapping):
+    formatted_output = ""
+    for key, value in filtered_subjects.items():
+        formatted_output += f"{key}:\n"
+        for day_number, classes in value.items():
+            formatted_output += f"{day_mapping.get(day_number, 'Неизвестный день')}:\n"
+            for class_key, class_value in classes.items():
+                formatted_output += f"  {class_key}. {class_value}\n"
+            formatted_output += "\n"
+        formatted_output += "\n"
+
+    return formatted_output.strip()
+
 def split_list(input_list, chunk_size=6) :
     """
     Функция разбивает список на части указанного размера и записывает результат в текстовый файл.
