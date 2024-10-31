@@ -106,7 +106,7 @@ class SimpleApp(QWidget):
         self.set_theme()
 
     def set_theme(self):
-        if self.light_theme:
+        if self.light_theme: # вынести в стили
             self.setStyleSheet("""
             QWidget {
                 background-color: #172129;
