@@ -15,7 +15,8 @@ class MainApp(SimpleApp):  # Inherit from SimpleApp
     def download_and_process_file(self):
         self.display_message("Начинаем скачивание файла...")
         download_file()  # Download the file
-        sheet_names = wb_name()  # Get sheet names
+        sheet_names = wb_name()
+        print(sheet_names)# Get sheet names
         if sheet_names:
             result = filter_excel('download_file.xlsx')
             # Save result to JSON file
