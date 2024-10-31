@@ -3,7 +3,7 @@ import sys
 from ui import SimpleApp  # Importing the SimpleApp class from ui.py
 import json
 import os
-from filter_excel import wb_name, split_list, filter_excel_group, filter_excel, filter_subjects  # Import functions from filter_excel.py
+from filter_excel import wb_name, split_list, filter_excel_group, filter_excel, filter_subjects,format_day # Import functions from filter_excel.py
 from download_file import download_file
 
 
@@ -61,18 +61,8 @@ class MainApp(SimpleApp):  # Inherit from SimpleApp
             "7": "Воскресенье"
         }
 
-        formatted_output = ""
-        for key, value in filtered_subjects.items():
-            formatted_output += f"{key}:\n"
-            for day_number, classes in value.items():
-                formatted_output += f"{day_mapping[day_number]}:\n"
-                for class_key, class_value in classes.items():
-                    formatted_output += f"  {class_key}. {class_value}\n"
-                formatted_output += "\n"
-
-            formatted_output += "\n"
-
-        self.text_output.append(formatted_output.strip())
+        formatted_output = format_day(filtered_subjects, day_mapping)
+        self.text_output.append(formatted_output)
         self.status_bar.showMessage("Фильтрованные данные добавлены в текстовое поле и сохранены в filter_subjects.json.")
 
 if __name__ == '__main__':
