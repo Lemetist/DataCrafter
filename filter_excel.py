@@ -1,5 +1,4 @@
 import pandas as pd
-import json
 import math
 
 def wb_name():
@@ -116,15 +115,3 @@ def filter_subjects(data, subjects) :
                     filtered_data[column][row][cell] = value
     return filtered_data
 
-
-# Пример использования
-result = filter_excel('download_file.xlsx')
-
-
-filtered_result = filter_subjects(result, ['МДК.07.01 Управление и автоматизация баз данных\nДавыдова Л.Б.',
-                                           'МДК.11.01 Технология разработки и защиты баз данных\nДавыдова Л.Б.'])
-
-
-# Сохранение результата в JSON файл
-with open('result.json', 'w', encoding='utf-8') as json_file :
-    json.dump(result, json_file, ensure_ascii=False, indent=4)
