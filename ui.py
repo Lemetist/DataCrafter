@@ -1,23 +1,30 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit, QApplication, QHBoxLayout, QDialog, QSlider, QLabel, QGraphicsDropShadowEffect, QFrame, QStatusBar, QColorDialog
+# ui.py
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit, QApplication, QHBoxLayout, QDialog, QSlider, \
+    QLabel, QGraphicsDropShadowEffect, QFrame, QStatusBar, QColorDialog, QComboBox
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QTimer
 from PyQt5.QtGui import QIcon, QColor
 import sys
+import os
 from datetime import datetime
 import locale
 import json
 
+try:
+    from filter_excel import wb_name
+except ImportError:
+    def wb_name():
+        return ["Понедельник", "Вторник", "Среда"]  # Моковые данные на случай отсутствия импорта
+
 class SimpleApp(QWidget):
     def __init__(self):
         super().__init__()
-        try:
-            locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
-        except locale.Error:
-            pass  # Если локаль не установлена, используем локаль по умолчанию
-        self.light_theme = True 
-        self.font_size = 14 
-        self.font_color = QColor(255, 255, 255)  # Цвет текста по умолчанию белый 
-        self.load_settings()  # Загрузка настроек 
-        self.initUI()  # Инициализация интерфейса 
+        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8') if locale.getlocale() else None
+        self.light_theme = True
+        self.font_size = 14
+        self.font_color = QColor(255, 255, 255)
+        self.load_settings()
+        self.initUI()
+        self.load_days()
 
     def initUI(self):
         self.setWindowTitle('SusMan -- Neon_Leonov')
@@ -35,43 +42,46 @@ class SimpleApp(QWidget):
         self.text_output.setReadOnly(True)
         layout.addWidget(self.text_output)
 
-        # Инициализация рамки для кнопок 
+        # Инициализация рамки для кнопок
         self.button_frame = QFrame(self)
         self.button_frame.setStyleSheet("QFrame { border: 2px solid #A77BCA; border-radius: 10px; padding: 10px; }")
 
         button_layout = QHBoxLayout(self.button_frame)
-
-        button_style = "QPushButton {border: none; border-radius: 10px; padding: 10px; font-size: 14px; background-color: #A77BCA; color: white;} " \
-                       "QPushButton:hover {background-color: #9B5B9B;}"
+        button_style = """
+            QPushButton { border: none; border-radius: 10px; padding: 10px; font-size: 14px; background-color: #A77BCA; color: white; }
+            QPushButton:hover { background-color: #9B5B9B; }
+        """
 
         button_data = [
             ('Добавить', 'plus.png'),
             ('Удалить', 'minus.png'),
             ('Настройки', 'settings.png'),
             ('Очистить', 'clear.png'),
-        ]  # Убрали кнопку "Цвет текста" из основного меню 
+        ]
 
         for text, icon in button_data:
             button = QPushButton(text, self)
             button.setStyleSheet(button_style)
-            button.setIcon(QIcon(icon))
+            if os.path.exists(icon):
+                button.setIcon(QIcon(icon))
             button.clicked.connect(lambda _, t=text: self.handle_button_click(t))
             button_layout.addWidget(button)
-
-            shadow_effect = QGraphicsDropShadowEffect()
-            shadow_effect.setBlurRadius(10)
-            shadow_effect.setXOffset(5)
-            shadow_effect.setYOffset(5)
-            shadow_effect.setColor(Qt.black)
-            button.setGraphicsEffect(shadow_effect)
-
             self.add_button_animation(button)
 
         layout.addWidget(self.button_frame)
 
-        # Статусная строка 
+        # Статусная строка
         self.status_bar = QStatusBar(self)
         layout.addWidget(self.status_bar)
+
+        # ComboBox для дней недели
+        self.combo_box = QComboBox(self)
+        self.combo_box.currentIndexChanged.connect(self.on_day_selected)
+        h_layout = QHBoxLayout()
+        h_layout.addStretch(1)
+        h_layout.addWidget(self.combo_box)
+        h_layout.addStretch(1)
+        layout.addLayout(h_layout)
 
         self.setLayout(layout)
 
@@ -80,9 +90,10 @@ class SimpleApp(QWidget):
         self.timer.start(1000)
         self.update_date()
 
-        self.set_theme()  # Применяем тему после инициализации интерфейса 
+        self.set_theme()
+
     def add_button_animation(self, button):
-        animation = QPropertyAnimation(button, b"geometry")
+        animation = QPropertyAnimation(button, b"geometry", button)
         original_geometry = button.geometry()
         animation.setDuration(300)
         animation.setStartValue(QRect(original_geometry.x(), original_geometry.y() - 50, original_geometry.width(), original_geometry.height()))
@@ -102,45 +113,37 @@ class SimpleApp(QWidget):
         self.text_output.append(message)
 
     def toggle_theme(self):
-        self.light_theme = not self.light_theme 
+        self.light_theme = not self.light_theme
         self.set_theme()
+        self.save_settings()
+
+    def load_days(self):
+        days = wb_name()  # Получаем список дней из функции wb_name
+        self.combo_box.addItems(days)
 
     def set_theme(self):
-        if self.light_theme: # вынести в стили
-            self.setStyleSheet("""
+        theme_styles = """
             QWidget {
-                background-color: #172129;
-                color: #FFFFFF;
+                background-color: %s;
+                color: %s;
                 font-family: 'Arial';
-                font-size: 14px;
+                font-size: %dpx;
             }
             QTextEdit {
-                background-color: #1E2A36;
+                background-color: %s;
                 border: 1px solid #BBBBBB;
                 border-radius: 5px;
                 padding: 10px;
-                font-size: 14px;
+                color: %s;
             }
-            """)
-        else:
-            self.setStyleSheet("""
-            QWidget {
-                background-color: #2E2E2E;
-                color: white;
-                font-family: 'Arial';
-                font-size: 14px;
-            }
-            QTextEdit {
-                background-color: #3C3C3C;
-                border: 1px solid #555;
-                border-radius: 5px;
-                padding: 10px;
-                font-size: 14px;
-            }
-            """)
-
-        # Обновляем стиль текстового поля с новым размером шрифта и цветом текста 
-        self.text_output.setStyleSheet(f"border: 1px solid #BBBBBB; padding: 10px; font-size: {self.font_size}px; color: {self.font_color.name()};")
+        """ % (
+            "#172129" if self.light_theme else "#2E2E2E",
+            "#FFFFFF",
+            self.font_size,
+            "#1E2A36" if self.light_theme else "#3C3C3C",
+            self.font_color.name()
+        )
+        self.setStyleSheet(theme_styles)
 
     def update_date(self):
         now = datetime.now()
@@ -151,27 +154,22 @@ class SimpleApp(QWidget):
         dialog.setWindowTitle("Настройки")
         dialog.setFixedSize(300, 200)
 
-        layout = QVBoxLayout()
+        layout = QVBoxLayout(dialog)
 
         self.font_size_label = QLabel(f"Размер шрифта: {self.font_size}px", self)
         layout.addWidget(self.font_size_label)
 
         self.font_size_slider = QSlider(Qt.Horizontal, self)
-        self.font_size_slider.setMinimum(8)
-        self.font_size_slider.setMaximum(30)
+        self.font_size_slider.setRange(8, 30)
         self.font_size_slider.setValue(self.font_size)
         self.font_size_slider.valueChanged.connect(self.update_font_size)
         layout.addWidget(self.font_size_slider)
 
         color_button = QPushButton("Выбрать цвет текста", self)
-        color_button.setStyleSheet("QPushButton {border: none; border-radius: 10px; padding: 10px; font-size: 14px; background-color: #A77BCA; color: white;} " \
-                                   "QPushButton:hover {background-color: #9B5B9B;}")
         color_button.clicked.connect(self.select_text_color)
         layout.addWidget(color_button)
 
         theme_button = QPushButton("Переключить тему", self)
-        theme_button.setStyleSheet("QPushButton {border: none; border-radius: 10px; padding: 10px; font-size: 14px; background-color: #A77BCA; color: white;} " \
-                                   "QPushButton:hover {background-color: #9B5B9B;}")
         theme_button.clicked.connect(self.toggle_theme)
         layout.addWidget(theme_button)
 
@@ -179,22 +177,23 @@ class SimpleApp(QWidget):
         dialog.exec_()
 
     def update_font_size(self, value):
-        self.font_size = value 
+        self.font_size = value
         self.font_size_label.setText(f"Размер шрифта: {self.font_size}px")
-        self.set_theme()  # Обновляем тему, чтобы применить новый размер шрифта 
-        self.save_settings()  # Сохраняем настройки при изменении 
+        self.set_theme()
+        self.save_settings()
 
     def select_text_color(self):
         color = QColorDialog.getColor()
         if color.isValid():
             self.font_color = color
-            self.set_theme()  # Обновляем цвет текста 
-            self.save_settings()  # Сохраняем настройки при изменении 
+            self.set_theme()
+            self.save_settings()
+
     def save_settings(self):
         settings = {
             'light_theme': self.light_theme,
             'font_size': self.font_size,
-            'font_color': self.font_color.name()  # Сохраняем цвет текста в формате HEX
+            'font_color': self.font_color.name()
         }
         with open('settings.json', 'w') as f:
             json.dump(settings, f)
@@ -205,9 +204,10 @@ class SimpleApp(QWidget):
                 settings = json.load(f)
                 self.light_theme = settings.get('light_theme', True)
                 self.font_size = settings.get('font_size', 14)
-                self.font_color = QColor(settings.get('font_color', '#FFFFFF'))  # Загружаем цвет текста 
+                self.font_color = QColor(settings.get('font_color', '#FFFFFF'))
         except FileNotFoundError:
-            pass  # Файл настроек не найден, используем значения по умолчанию
+            pass
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

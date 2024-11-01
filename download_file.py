@@ -12,7 +12,6 @@ def download_file():
         file_path = 'download_file.xlsx'
         with open(file_path, 'wb') as f:
             f.write(response.content)
-        print(f'Файл сохранен как {file_path}')
     except requests.exceptions.RequestException as e:
         print(f'Ошибка загрузки файла: {e}')
 
